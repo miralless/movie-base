@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieBase - Home</title>
+    <link rel="stylesheet" href="styles/stylesHome.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">MovieBase</div>
+        <nav>
+            <span id="user-email-display" style="margin-right: 15px; font-size: 0.8rem; color: #bbb;"></span>
+        </nav>
+    </header>
+
+    <main>
+        <h2 style="font-style: italic; color: #D4AF37;">Hola <span id="user-name"></span>!</h2>
+        <div class="data">
+            <span class="etiqueta-borde">Información del perfil</span>
+            <div class="perfil-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="display-seguidores">0</span>
+                    <span class="stat-label">Seguidores</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="display-seguidos">0</span>
+                    <span class="stat-label">Siguiendo</span>
+                </div>
+            </div>
+            <div class="separador"></div>
+            <div class="info">
+                <div class="info-item">
+                    <p>Nombre completo: <span id="name" style="text-decoration: capitalize;"></span></p>
+                </div>
+                <div class="info-item">
+                    <p>Correo electrónico: <span id="email" style="text-decoration: lowercase;"></span></p>
+                </div>
+                <div class="info-item">
+                    <p>Activo desde: <span id="date"></span></p>
+                </div>
+            </div>
+        </div>
+        <div class="container-btn">
+            <button class="btn">Editar perfil</button>
+            <button class="btn" id="logout-btn">Cerrar sesión</button>
+        </div>
+        <div class="data">
+            <span class="etiqueta-borde">Películas / series valoradas</span>
+        </div>
+        <div class="data">
+            <span class="etiqueta-borde">Lista de deseos</span>
+        </div>
+    </main>
+
+    <nav class="secondary-footer">
+        <a href="home.html" class="nav-item">
+            <i class="fa-solid fa-house icon"></i>
+        </a>
+        <a href="explorar.html" class="nav-item">
+            <i class="fa-solid fa-magnifying-glass icon"></i>
+        </a>
+        <a href="peliculas.html" class="nav-item">
+            <i class="fa-solid fa-clapperboard icon"></i>
+        </a>
+        <a href="perfil.html" class="nav-item active">
+            <i class="fa-solid fa-user icon"></i>
+        </a>
+    </nav>
+
+    <footer>
+        &copy; 2026 MovieBase
+    </footer>
+
+    <script type="module" src="scripts/appHome.js"></script>
+</body>
+</html>

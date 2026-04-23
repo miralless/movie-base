@@ -1,0 +1,279 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body { 
+    /* El body empieza oculto por Firebase, pero cuando se muestra es Flex */
+    display: none; 
+    flex-direction: column; 
+    min-height: 100vh; 
+    background-color: #1a1a1a;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+header {
+    background-color: #2a2a2a;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #D4AF37;
+}
+
+/* 2. El MAIN debe crecer para ocupar el espacio sobrante */
+main {
+    flex: 1 0 auto; /* Crece (1), no se encoge (0), base automática */
+    padding: 1rem 2rem;
+}
+
+.secondary-footer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #222; /* Ligeramente más claro que el fondo */
+    padding: 15px 0 15px 0;
+    border-top: 1px solid #333;
+    position: fixed;
+    bottom: 50px; /* Justo encima del footer principal */
+    width: 100%;
+}
+
+/* Estilo de cada enlace */
+.nav-item {
+    text-decoration: none;
+    color: #bbb;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+i {
+    color: #D4AF37; /* Dorado para los íconos */
+}
+
+.nav-item .icon {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+/* Efecto al pasar el ratón */
+.nav-item:hover {
+    color: #D4AF37; /* Tu dorado */
+    transform: translateY(-7px);
+}
+
+/* Estilo para el ítem "activo" (opcional) */
+.nav-item.active {
+    color: #D4AF37;
+    font-weight: bold;
+}
+
+/* Ajuste del footer principal para que no quede demasiado grande */
+footer {
+    flex-shrink: 0;
+    background-color: #1a1a1a;
+    padding: 1rem;
+    text-align: center;
+    color: #D4AF37;
+    border-top: 1px solid #2a2a2a;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #D4AF37;
+}
+
+.btn-profile {
+    background-color: transparent;
+    color: #D4AF37;
+    border: 1px solid #D4AF37;
+    padding: 5px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.btn-profile:hover {
+    background-color: #D4AF37;
+    color: black;
+}
+
+.nav-item {
+    color: #888;
+    transition: all 0.5s ease;
+}
+
+.nav-item .icon {
+    color: #888;
+}
+
+/* Estado ACTIVO (cuando el usuario está en esa página) */
+.nav-item.active {
+    color: #D4AF37; /* Dorado */
+    font-weight: bold;
+}
+
+.nav-item.active .icon {
+    color: #D4AF37;
+    /* Efecto extra: un pequeño resplandor al icono activo */
+    filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4));
+    transform: scale(1.1); /* Lo hace un poquito más grande */
+}
+
+.data {
+    border: solid 2px #D4AF37;
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    flex-direction: column;
+    border-radius: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#user-name {
+    text-transform: lowercase;
+}
+
+.etiqueta-borde {
+    position: absolute;
+    top: -12px; /* La mitad de la altura de la etiqueta aprox. para que quede centrada en la línea */
+    left: 20px; /* Separación desde la izquierda */
+    background-color: #1a1a1a; /* El MISMO color de fondo que el div para "tapar" la línea */
+    padding: 0 8px; /* Espacio a los lados del texto para que no toque la línea */
+    color: #D4AF37;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.container-datos {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.perfil-stats {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin: 0 auto;
+    justify-content: space-around;
+    width: 50%;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #D4AF37;
+    font-style: italic;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: #bbb;
+    font-weight: bold;
+}
+
+.btn {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #D4AF37;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    margin: 0 2px;
+    margin-top: 30px;
+    font-size: 1rem;
+}
+
+.container-btn {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.info-item p {
+    color: #bbb;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.info-item span {
+    color: #D4AF37;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.separador {
+    border: solid 1px #D4AF37;
+    width: 95%;
+    margin: 0 auto;
+    margin-top: 30px;
+}
+
+@media (max-width: 480px) { 
+    .nav-item:hover {
+        transform: translateY(0px);
+    }
+
+    .data {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    header {
+        padding-right: 0.5rem;
+    }
+
+    .perfil-stats {
+        justify-content: center;
+        gap: 45px;
+    }
+
+    .separador {
+        width: 85%;
+    }
+
+    .info {
+        flex-direction: column;
+    }
+
+    .info-item p {
+        font-size: 12px;
+    }
+
+    .info-item span {
+        font-size: 12px;
+    }
+
+    .container-btn {
+        gap: 10px;
+        margin-top: -10px;
+    }
+}
