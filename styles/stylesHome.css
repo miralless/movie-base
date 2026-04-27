@@ -95,6 +95,7 @@ footer {
     background-color: transparent;
     color: #D4AF37;
     border: 1px solid #D4AF37;
+    font-weight: bold;
     padding: 5px 15px;
     cursor: pointer;
     border-radius: 4px;
@@ -195,7 +196,7 @@ footer {
 .btn {
     padding: 10px 20px;
     cursor: pointer;
-    background-color: #D4AF37;
+    background-color: #1a1a1a;
     color: white;
     border: none;
     border-radius: 4px;
@@ -203,6 +204,16 @@ footer {
     margin: 0 2px;
     margin-top: 30px;
     font-size: 1rem;
+    border: solid 1px #D4AF37;
+    color: #D4AF37;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background-color: #D4AF37;
+    color: #1a1a1a;
+    border: transparent;
+    transition: all 0.5s ease;
 }
 
 .container-btn {
@@ -235,6 +246,263 @@ footer {
     width: 95%;
     margin: 0 auto;
     margin-top: 30px;
+}
+
+#contenedor-peliculas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    padding: 15px;
+}
+
+.movie-card {
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    width: 200px;
+}
+
+.movie-card-watchlist {
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    width: 175px;
+}
+
+.movie-card-watchlist .movie-info h4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;      /* Cambia a 3 si quieres más líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal;
+}
+
+.movie-card img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 2 / 3; /* Proporción estándar de póster */
+    object-fit: cover;
+}
+
+.movie-card-watchlist img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 2 / 3; /* Proporción estándar de póster */
+    object-fit: cover;
+}
+
+.movie-info {
+    padding: 8px;
+}
+
+.movie-info h4 {
+    margin: 0;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Corta el texto si es muy largo */
+}
+
+.rating {
+    color: #D4AF37;
+    font-size: 0.75rem;
+}
+
+.search-container {
+    display: flex;
+    padding: 20px 0px;
+    gap: 10px;
+    height: 50px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+#search-input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 15px;
+    border: 1px solid #444;
+    background: #222;
+    color: white;
+    outline: none;
+}
+
+#search-input:focus {
+    border-color: #D4AF37;
+}
+
+.busca {
+    color: #1a1a1a;
+    -webkit-text-stroke: 0.5px #1a1a1a;
+}
+
+#search-btn {
+    background: #D4AF37;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    color: #1a1a1a;
+    width: fit-content;
+}
+
+.title {
+    color: #D4AF37;
+    font-style: italic;
+}
+
+.movies-grid {
+    display: grid;
+    /* Forzamos 6 columnas de igual tamaño */
+    grid-template-columns: repeat(6, 1fr);
+    column-gap: 30px;
+    row-gap: 30px;
+    padding: 20px;
+    justify-content: center;
+}
+
+.main-container {
+    padding-bottom: 120px;
+}
+
+.details-container {
+    padding: 20px;
+    margin: 0 auto;
+}
+
+.movie-header {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap; /* Para que en móvil se ponga uno debajo de otro */
+}
+
+.detail-poster {
+    width: 230px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+.text-info {
+    flex: 1;
+}
+
+.tagline {
+    font-style: italic;
+    color: #D4AF37;
+    margin-bottom: 20px;
+}
+
+.user-actions {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+#add-watchlist-btn {
+    width: 30%;
+    background-color: #1a1a1a;
+    color: white;
+    border: solid 1px #D4AF37;
+    color: #D4AF37;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+#add-watchlist-btn:hover {
+    background-color: #D4AF37;
+    color: #1a1a1a;
+    border: transparent;
+}
+
+#user-rating {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background: #222;
+    color: white;
+    outline: none;
+    width: 45%;
+}
+
+.rating-input {
+    width: 35%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+#save-rating-btn {
+    padding: 10px 25px;
+    border-radius: 5px;
+}
+
+#save-rating-btn:hover {
+    color: #1a1a1a;
+}
+
+.tier-row {
+    display: flex;
+    border-bottom: 1px solid #333;
+    min-height: 150px;
+    align-items: left;
+}
+
+.tier-label {
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #1a1a1a;
+}
+
+.tier-list-container {
+    margin: 25px;
+}
+
+.s { background-color: #ff7f7f; } /* Rojo coral */
+.a { background-color: #ffbf7f; } /* Naranja suave */
+.b { background-color: #ffdf7f; } /* Ámbar / Oro */
+.c { background-color: #ffff7f; } /* Amarillo */
+.d { background-color: #dfff7f; } /* Lima claro */
+.e { background-color: #bfff7f; } /* Lima */
+.f { background-color: #7fff7f; } /* Verde vibrante */
+
+.s {
+    border-top-left-radius: 5px;
+}
+
+.f {
+    border-bottom-left-radius: 5px;
+}
+
+.movie-tier {
+    width: 150px;
+}
+
+.tier-content {
+    flex: 1;
+    padding: 20px !important;
+    display: flex !important; /* Cambiamos grid por flex para que se deslicen */
+    flex-wrap: wrap;
+    gap: 10px;
+    background-color: #1a1a1a;
+    justify-content: flex-start;
+}
+
+.tier-content .movie-info { display: none; } /* Ocultamos textos para que sea visual */
+
+.delete-pts {
+    width: 30%;
 }
 
 @media (max-width: 480px) { 
@@ -276,4 +544,189 @@ footer {
         gap: 10px;
         margin-top: -10px;
     }
+
+    .movie-card {
+        width: 135px;
+    }
+
+    .text-info {
+        flex: none;
+        width: 100%;
+    }
+
+    .movies-grid {
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 10px;
+        row-gap: 15px;
+    }
+
+    .title {
+        font-size: 1.2rem;
+        margin: 12px auto;
+        text-align: center;
+    }
+
+    .btn-profile {
+        background-color: #D4AF37;
+        color: white;
+        font-size: smaller;
+        font-weight: bold;
+    }
+
+    #add-watchlist-btn {
+        width: 100%;
+        background-color: #D4AF37;
+        color: white;
+        font-size: smaller;
+        font-weight: bold;
+    }
+
+    .rating-input {
+        width: 100%;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    #user-rating {
+        width: 15%;
+        text-align: center;
+    }
+
+    .movie-card-watchlist {
+        width: 125px;
+    }
+
+    .tier-row {
+        flex-direction: column; /* Apila la letra sobre el contenido */
+        min-height: auto;       /* Permite que la altura sea flexible */
+        width: auto;
+        margin-left: 20px;
+        margin-right: 20px;
+        border-bottom: 0px transparent;
+    }
+
+    .tier-label {
+        width: 100% !important; /* La etiqueta ocupa todo el ancho */
+        height: 30px;           /* Altura más pequeña para que no ocupe mucho */
+        font-size: 1.1rem;      /* Letra un poco más pequeña */
+        padding: 5px 0;
+        justify-content: center; /* Centra la letra horizontalmente */
+    }
+
+    .tier-content {
+        padding: 15px 10px !important;
+        justify-content: center;
+    }
+    
+    .tier-list-container {
+        width: 100%;
+    }
+
+    .movie-tier {
+        width: 30%;
+    }
+
+    .btn {
+        background-color: #D4AF37;
+        color: white;
+        font-size: smaller;
+        font-weight: bold;
+    }
+
+    .delete-pts {
+        width: 100%;
+    }
+
+    #add-watchlist-btn:hover {
+        color: white;
+    }
+
+    #save-rating-btn:hover {
+        color: white;
+    }
+
+    .delete-pts:hover {
+        color: white;
+    }
+
+    .detail-poster {
+        width: 70%;
+        margin: auto;
+    }
+
+    .movie-title {
+        margin-top: 0px;
+        text-align: center;
+    }
+
+    .tagline {
+        text-align: center;
+    }
+
+    .overview {
+        text-align: justify;
+    }
+
+    .user-actions {
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 0px;
+        margin-bottom: 5px;
+    }
+
+    .movie-header {
+        margin-left: -10px;
+    }
+
+    .s {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .a {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .b {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .c {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .d {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .e {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .f {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        border-bottom-left-radius: 0px;
+    }
+
+    .swal2-popup {
+        width: 80% !important;   /* Ocupará el 80% del ancho de la pantalla */
+        font-size: 0.8rem !important; /* Reducimos ligeramente la base de la fuente */
+    }
+
+    .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+        top: 29px !important; /* Ajusta la posición de las líneas de la X */
+        width: 33px !important; /* Hace las líneas más cortas para que no se salgan */
+    }
+
+    .swal2-icon {
+        margin-bottom: 10px !important;
+        transform: scale(0.9);
+    }
+
 }

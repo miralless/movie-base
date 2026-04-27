@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieBase - Home</title>
+    <link rel="stylesheet" href="styles/stylesHome.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">MovieBase</div>
+        <nav>
+            <span id="user-email-display" style="margin-right: 15px; font-size: 0.8rem; color: #bbb;"></span>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div id="movie-details" class="details-container">
+            <p>Cargando información...</p>
+        </div>
+
+        <div class="user-actions">
+            <button id="add-watchlist-btn">Añadir a mi lista de deseos</button>
+            <div class="rating-input">
+                <span class="txt-pts">Puntúala:</span>
+                <input type="number" id="user-rating" min="0" max="10" step="0.25" placeholder="0-10">
+                <button id="save-rating-btn" class="btn-profile">Puntuar</button>
+            </div>
+            <button id="delete-rating-btn" style="display: none; padding: 10px;" class="btn-profile delete-pts">
+                Eliminar mi puntuación
+            </button>
+        </div>
+    </main>
+
+    <nav class="secondary-footer">
+        <a href="home.html" class="nav-item">
+            <i class="fa-solid fa-house icon"></i>
+        </a>
+        <a href="explorar.html" class="nav-item">
+            <i class="fa-solid fa-magnifying-glass icon"></i>
+        </a>
+        <a href="peliculas.html" class="nav-item active">
+            <i class="fa-solid fa-clapperboard icon"></i>
+        </a>
+        <a href="perfil.html" class="nav-item">
+            <i class="fa-solid fa-user icon"></i>
+        </a>
+    </nav>
+
+    <footer>
+        &copy; 2026 MovieBase
+    </footer>
+
+    <script type="module" src="scripts/appHome.js"></script>
+    <script type="module" src="scripts/tmdb.js"></script>
+    <script type="module" src="scripts/info.js"></script>
+</body>
+</html>

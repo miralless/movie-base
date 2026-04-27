@@ -11,7 +11,10 @@ import {
     doc, 
     setDoc, 
     collection, 
-    getCountFromServer 
+    getCountFromServer,
+    query,       // <--- Añadido
+    where,       // <--- Añadido
+    getDocs 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const MovieAlert = Swal.mixin({
@@ -52,9 +55,6 @@ const buttonsContainer = document.querySelector('.buttons');
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-        // Si el foco está en el textarea de la bio, dejamos que haga salto de línea normal
-        if (document.activeElement.id === 'bio') return;
-
         e.preventDefault();
         
         // Verificamos si estamos en modo registro mirando si los campos extra son visibles
@@ -96,7 +96,6 @@ btnRegistro.addEventListener('click', async () => {
     const username = document.getElementById('username').value.trim();
     const nombre = document.getElementById('nombre').value.trim();
     const apellido = document.getElementById('apellido').value.trim();
-    const bio = document.getElementById('bio').value.trim();
 
     if (!email || !pass || !username || !nombre || !apellido) {
         MovieAlert.fire({
@@ -142,21 +141,38 @@ btnRegistro.addEventListener('click', async () => {
     }
 
     try {
+        const usuariosRef = collection(db, "Usuarios");
+        const q = query(usuariosRef, where("username", "==", username));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            MovieAlert.fire({
+                title: '¡Ups!',
+                text: 'Este nombre de usuario ya está en uso. Por favor, elige otro.',
+                icon: 'warning',
+                confirmButtonColor: '#D4AF37'
+            });
+            return; // Detenemos el registro aquí
+        }
+
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
 
         const seguidores = 0;
         const seguidos = 0;
+        const listaDeseos = [];
+        const listaPuntuaciones = {};
 
         await setDoc(doc(db, "Usuarios", user.uid), {
             nombre,
             apellido,
             username,
-            bio,
             email,
             fechaRegistro: new Date(),
             seguidores,
-            seguidos
+            seguidos,
+            listaDeseos,
+            listaPuntuaciones
         });
 
         window.location.href = 'index.html';
@@ -200,7 +216,6 @@ btnCancelar.addEventListener('click', () => {
     document.getElementById('username').value = "";
     document.getElementById('nombre').value = "";
     document.getElementById('apellido').value = "";
-    document.getElementById('bio').value = "";
 });
 
 // Inicio de sesión

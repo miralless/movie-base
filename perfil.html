@@ -15,7 +15,7 @@
         </nav>
     </header>
 
-    <main>
+    <main class="main-container">
         <h2 style="font-style: italic; color: #D4AF37;">Hola <span id="user-name"></span>!</h2>
         <div class="data">
             <span class="etiqueta-borde">Información del perfil</span>
@@ -48,10 +48,48 @@
             <button class="btn" id="logout-btn">Cerrar sesión</button>
         </div>
         <div class="data">
-            <span class="etiqueta-borde">Películas / series valoradas</span>
-        </div>
-        <div class="data">
             <span class="etiqueta-borde">Lista de deseos</span>
+            <div id="wishlist-container" class="movies-grid">
+            </div>
+        </div>
+        <div class="data valoradas">
+            <span class="etiqueta-borde">Películas / series valoradas</span>
+            <div class="tier-list-container">
+                <div class="tier-row s-row" id="tier-s">
+                    <div class="tier-label s">S</div>
+                    <div class="tier-content movies-grid"></div>
+                </div>
+
+                <div class="tier-row" id="tier-a">
+                    <div class="tier-label a">A</div>
+                    <div class="tier-content movies-grid"></div>
+                </div>
+
+                <div class="tier-row" id="tier-b">
+                    <div class="tier-label b">B</div>
+                    <div class="tier-content movies-grid"></div>
+                </div>
+
+                <div class="tier-row" id="tier-c">
+                    <div class="tier-label c">C</div>
+                    <div class="tier-content movies-grid"></div>
+                </div>
+
+                <div class="tier-row" id="tier-d">
+                    <div class="tier-label d">D</div>
+                    <div class="tier-content movies-grid"></div>
+                </div>
+
+                <div class="tier-row" id="tier-e">
+                    <div class="tier-label e">E</div>
+                    <div class="tier-content movies-grid"></div>
+                </div>
+
+                <div class="tier-row f-row" id="tier-f">
+                    <div class="tier-label f">F</div>
+                    <div class="tier-content movies-grid"></div>
+                </div>
+            </div>
         </div>
     </main>
 

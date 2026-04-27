@@ -2,6 +2,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+const API_KEY = '42cd365743b38b7fec6c2366d90c6c0a';
+const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+
 // Misma configuración que en app.js
 const firebaseConfig = {
     apiKey: "AIzaSyD6qzEKBpPysfxpTHAfua-BToUBYglee1E",
@@ -61,10 +64,14 @@ onAuthStateChanged(auth, async (user) => {
                 if (userData.seguidos !== undefined) {
                     document.getElementById('display-seguidos').innerText = userData.seguidos;
                 }
-                
-                // Si ya implementaste lo de los avatares:
-                if (userData.fotoPerfil && document.getElementById('img')) {
-                    document.getElementById('img').innerHTML = `<img src="assets/avatares/${userData.fotoPerfil}" style="width:100px; border-radius:50%;">`;
+                if (userData.listaDeseos && userData.listaDeseos.length > 0) {
+                    cargarListaDeseos(userData.listaDeseos);
+                } else {
+                    document.getElementById('wishlist-container').style.display = "flex";
+                    document.getElementById('wishlist-container').innerHTML = "<p style='padding:20px; color:#888; width: 100%;'>¡Añade películas o series a tu lista de deseos!</p>";
+                }
+                if (userData.listaPuntuaciones) {
+                    organizarTierList(userData.listaPuntuaciones);
                 }
 
             } else {
@@ -132,5 +139,75 @@ async function ejecutarFollow(idDestino) {
         console.log("¡Sincronización de follow completada!");
     } catch (error) {
         console.error("Error en la operación de follow:", error);
+    }
+}
+
+async function cargarListaDeseos(ids) {
+    const contenedor = document.getElementById('wishlist-container');
+    contenedor.innerHTML = ""; // Limpiar
+
+    // Recorremos cada ID del array de Firebase
+    for (const id of ids) {
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=es-ES`);
+            const peli = await res.json();
+
+            if (peli.poster_path) {
+                const card = document.createElement('div');
+                card.classList.add('movie-card-watchlist');
+                // Reutilizamos la lógica de clic para ir al detalle
+                card.style.cursor = "pointer";
+                card.onclick = () => window.location.href = `info-pelicula.html?id=${peli.id}`;
+
+                card.innerHTML = `
+                    <img src="${IMG_URL + peli.poster_path}" alt="${peli.title}">
+                    <div class="movie-info">
+                        <h4>${peli.title}</h4>
+                        <span class="rating">⭐ ${peli.vote_average.toFixed(1)}</span>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            }
+        } catch (error) {
+            console.error("Error al cargar peli de la wishlist:", error);
+        }
+    }
+}
+
+async function organizarTierList(puntuaciones) {
+    const entries = Object.entries(puntuaciones);
+
+    for (const [id, nota] of entries) {
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=es-ES`);
+            const peli = await res.json();
+
+            let tierId = "";
+            
+            // Nueva escala para 7 niveles
+            if (nota >= 9.5) tierId = "tier-s";
+            else if (nota >= 8.5) tierId = "tier-a";
+            else if (nota >= 7.0) tierId = "tier-b";
+            else if (nota >= 5.5) tierId = "tier-c";
+            else if (nota >= 4.0) tierId = "tier-d";
+            else if (nota >= 2.5) tierId = "tier-e";
+            else tierId = "tier-f";
+
+            const contenedor = document.querySelector(`#${tierId} .tier-content`);
+            if (!contenedor) continue;
+
+            const img = document.createElement('img');
+            img.src = IMG_URL + peli.poster_path;
+            img.classList.add('movie-card');
+            img.classList.add('movie-tier');
+            img.style.cursor = "pointer";
+            img.title = `${peli.title}: ${nota}`;
+            img.onclick = () => window.location.href = `info-pelicula.html?id=${peli.id}`;
+
+            contenedor.appendChild(img);
+
+        } catch (error) {
+            console.error("Error cargando peli:", error);
+        }
     }
 }

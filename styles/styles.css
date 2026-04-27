@@ -26,14 +26,15 @@ input {
 }
 
 button {
-    padding: 10px 20px;
+    padding: 10px 10px;
     cursor: pointer;
-    background-color: #D4AF37; /* Rojo tipo Netflix */
-    color: white;
-    border: none;
+    background-color: transparent;
+    color: #D4AF37;
+    border: solid 2px #D4AF37;
     border-radius: 4px;
     width: 48%;
     margin: 10px 0px 5px 0px;
+    font-weight: bold;
 }
 
 .my-swal-title {
@@ -96,13 +97,6 @@ button:hover {
     animation: fadeIn 0.5s ease;
 }
 
-#bio {
-    resize: none;
-    height: 60px;
-    width: 250px;
-    padding: 10px;
-}
-
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -125,10 +119,6 @@ button:hover {
         font-size: 12px;
     }
 
-    #bio {
-        width: 90%;
-    }
-
     button {
         width: 48%;
         font-size: 12px;
@@ -147,5 +137,11 @@ button:hover {
     .swal2-icon {
         margin-bottom: 10px !important;
         transform: scale(0.9);
+    }
+
+    button {
+        background-color: #D4AF37;
+        color: white;
+        font-weight: bold;
     }
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieBase - Home</title>
+    <link rel="stylesheet" href="styles/stylesHome.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">MovieBase</div>
+        <nav>
+            <span id="user-email-display" style="margin-right: 15px; font-size: 0.8rem; color: #bbb;"></span>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Busca una película o serie...">
+            <button id="search-btn"><i class="busca fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <section id="discovery-section">
+            <h2 class="title">Películas para descubrir</h2>
+            <div id="random-movies" class="movies-grid">
+            </div>
+        </section>
+
+        <section id="search-results-section" style="display: none;">
+            <h2 id="search-title" class="title">Resultados de búsqueda</h2>
+            <div id="search-results" class="movies-grid"></div>
+
+            <div style="text-align: center; margin: 40px 0;">
+                <button id="load-more-btn" class="btn" style="display: none; width: auto; padding: 10px 40px;">Ver más resultados</button>
+            </div>
+        </section>
+    </main>
+
+    <nav class="secondary-footer">
+        <a href="home.html" class="nav-item">
+            <i class="fa-solid fa-house icon"></i>
+        </a>
+        <a href="explorar.html" class="nav-item">
+            <i class="fa-solid fa-magnifying-glass icon"></i>
+        </a>
+        <a href="peliculas.html" class="nav-item active">
+            <i class="fa-solid fa-clapperboard icon"></i>
+        </a>
+        <a href="perfil.html" class="nav-item">
+            <i class="fa-solid fa-user icon"></i>
+        </a>
+    </nav>
+
+    <footer>
+        &copy; 2026 MovieBase
+    </footer>
+
+    <script type="module" src="scripts/appHome.js"></script>
+    <script type="module" src="scripts/tmdb.js"></script>
+</body>
+</html>
