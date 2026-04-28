@@ -43,9 +43,31 @@ onAuthStateChanged(auth, async (user) => {
 async function cargarDetalles() {
     if (!movieId) return;
     try {
+        // 1. Obtener detalles básicos
         const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=es-ES`);
         const peli = await res.json();
+        
+        // 2. Obtener proveedores de streaming
+        const resProviders = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${API_KEY}`);
+        const providersData = await resProviders.json();
+        
+        // Buscamos los datos de España (ES). Si prefieres otro país, cambia 'ES'.
+        const spainProviders = providersData.results?.ES?.flatrate || []; 
+
         const fechaFormateada = peli.release_date ? peli.release_date.split('-').reverse().join('/') : "N/A";
+
+        // Generar el HTML de los logos de plataformas
+        let providersHTML = "";
+        if (spainProviders.length > 0) {
+            providersHTML = spainProviders.map(p => `
+                <img src="https://image.tmdb.org/t/p/original${p.logo_path}" 
+                     title="${p.provider_name}" 
+                     alt="${p.provider_name}" 
+                     class="provider-logo">
+            `).join('');
+        } else {
+            providersHTML = "<p style='color: #888; font-size: 0.9rem;'>No disponible en suscripción actualmente en España.</p>";
+        }
 
         document.getElementById('movie-details').innerHTML = `
             <div class="movie-header">
@@ -56,7 +78,15 @@ async function cargarDetalles() {
                     <p class="overview">${peli.overview}</p>
                     <p><strong>Duración:</strong> ${peli.runtime || 'N/A'} min</p>
                     <p><strong>Fecha de estreno:</strong> ${fechaFormateada}</p>
-                    <p><strong>Puntuación TMDB:</strong> ${peli.vote_average.toFixed(1)} / 10</p>
+                    <p><strong>Puntuación:</strong> ${peli.vote_average.toFixed(1)} / 10</p>
+                    <p><strong>Género:</strong> ${peli.genres.map(g => g.name).join(', ')}</p>
+                    
+                    <div class="providers-section">
+                        <p><strong>Disponible en:</strong></p>
+                        <div class="providers-container">
+                            ${providersHTML}
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -211,19 +241,49 @@ document.getElementById('add-watchlist-btn').onclick = async () => {
 
     try {
         if (isEnListaDeseos) {
-            await updateDoc(userRef, { listaDeseos: arrayRemove(movieId) });
-            isEnListaDeseos = false;
-            btn.innerText = "Añadir a mi lista de deseos";
-            btn.classList.remove('btn-remove');
+            // MOSTRAR CONFIRMACIÓN ANTES DE ELIMINAR
+            const confirmacion = await MovieAlert.fire({
+                title: '¿Quitar de la lista?',
+                text: "Esta película dejará de aparecer en tu lista de deseos.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, quitar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirmacion.isConfirmed) {
+                await updateDoc(userRef, { listaDeseos: arrayRemove(movieId) });
+                isEnListaDeseos = false;
+                btn.innerText = "Añadir a mi lista de deseos";
+                btn.classList.remove('btn-remove');
+                
+                MovieAlert.fire({
+                    title: 'Eliminada',
+                    text: 'Se ha quitado de tu lista de deseos.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
         } else {
+            // AÑADIR DIRECTAMENTE (Sin confirmación, suele ser mejor experiencia)
             await updateDoc(userRef, { listaDeseos: arrayUnion(movieId) });
             await registrarActividad("deseo");
             isEnListaDeseos = true;
             btn.innerText = "Eliminar de la lista de deseos";
             btn.classList.add('btn-remove');
+
+            MovieAlert.fire({
+                title: '¡Añadida!',
+                text: 'Se ha guardado en tu lista de deseos.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
         }
     } catch (error) {
         console.error("Error en Watchlist:", error);
+        MovieAlert.fire({ title: 'Error', text: 'No se pudo actualizar la lista.', icon: 'error' });
     }
 };
 

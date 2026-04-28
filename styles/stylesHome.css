@@ -78,6 +78,7 @@ footer {
     flex-shrink: 0;
     background-color: #1a1a1a;
     padding: 1rem;
+    padding-left: 0;
     text-align: center;
     color: #D4AF37;
     border-top: 1px solid #2a2a2a;
@@ -406,6 +407,7 @@ footer {
 
 .main-container {
     padding-bottom: 120px;
+    padding-top: 30px;
 }
 
 .details-container {
@@ -779,6 +781,30 @@ footer {
     color: #D4AF37;
     font-family: sans-serif;
     letter-spacing: 1px;
+}
+
+.providers-section {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 0px;
+    margin-top: -10px;
+}
+
+.providers-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 0px;
+    align-items: center;
+}
+
+.provider-logo {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
 }
 
 @media (max-width: 480px) { 
