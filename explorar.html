@@ -20,36 +20,30 @@
         </nav>
     </header>
 
-    <main class="main-container">
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Busca una película o serie...">
-            <button id="search-btn"><i class="busca fa-solid fa-magnifying-glass"></i></button>
+    <nav>
+        <div id="search-profile-container">
+            <input type="text" id="search-user-input" placeholder="Busca a tus amigos...">
+            <button id="search-user-btn">Buscar</button>
         </div>
 
-        <section id="discovery-section">
-            <h2 class="title">Películas para descubrir</h2>
-            <div id="random-movies" class="movies-grid">
+        <div id="suggested-users-section">
+            <div id="suggested-users-grid" class="users-grid">
             </div>
-        </section>
+        </div>
+    </nav>
 
-        <section id="search-results-section" style="display: none;">
-            <h2 id="search-title" class="title">Resultados de búsqueda</h2>
-            <div id="search-results" class="movies-grid"></div>
-
-            <div style="text-align: center; margin: 40px 0;">
-                <button id="load-more-btn" class="btn" style="display: none; width: auto; padding: 10px 40px;">Ver más resultados</button>
-            </div>
-        </section>
+    <main id="search-results" class="main-container">
+        
     </main>
 
     <nav class="secondary-footer">
         <a href="home.html" class="nav-item">
             <i class="fa-solid fa-house icon"></i>
         </a>
-        <a href="explorar.html" class="nav-item">
+        <a href="explorar.html" class="nav-item active">
             <i class="fa-solid fa-magnifying-glass icon"></i>
         </a>
-        <a href="peliculas.html" class="nav-item active">
+        <a href="peliculas.html" class="nav-item">
             <i class="fa-solid fa-clapperboard icon"></i>
         </a>
         <a href="perfil.html" class="nav-item">
@@ -62,6 +56,6 @@
     </footer>
 
     <script type="module" src="scripts/appHome.js"></script>
-    <script type="module" src="scripts/tmdb.js"></script>
+    <script type="module" src="scripts/explorar.js"></script>
 </body>
 </html>

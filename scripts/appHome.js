@@ -1,6 +1,6 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const API_KEY = '42cd365743b38b7fec6c2366d90c6c0a';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
@@ -26,6 +26,9 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         const emailDisplay = document.getElementById('user-email-display');
         if (emailDisplay) emailDisplay.innerText = user.email;
+        if (window.location.pathname.includes('home.html')) {
+            cargarFeed(user.uid);
+        }
         try {
             const docRef = doc(db, "Usuarios", user.uid);
             const docSnap = await getDoc(docRef);
@@ -81,6 +84,7 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Error al obtener datos:", error);
         }
 
+        ocultarLoader();
         document.body.style.display = 'flex';
     }
 });
@@ -210,4 +214,96 @@ async function organizarTierList(puntuaciones) {
             console.error("Error cargando peli:", error);
         }
     }
+}
+
+function ocultarLoader() {
+    const loader = document.getElementById('loader-overlay');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500); // Coincide con la transición del CSS
+    }
+}
+
+async function cargarFeed(miUid) {
+    const mainContainer = document.querySelector('main');
+
+    try {
+        // 1. Obtener a quién sigo
+        const qSeguidos = query(collection(db, "Relaciones"), where("followerId", "==", miUid));
+        const snapSeguidos = await getDocs(qSeguidos);
+        
+        if (snapSeguidos.empty) {
+            mainContainer.innerHTML = `
+                <div style="text-align:center; padding:50px; color:#888;">
+                    <i class="fa-solid fa-user-plus" style="font-size:3rem; margin-bottom:15px;"></i>
+                    <p>Aún no sigues a nadie. ¡Explora para ver actividad!</p>
+                </div>`;
+            return;
+        }
+
+        const listaSeguidosIds = snapSeguidos.docs.map(doc => doc.data().followingId);
+
+        // 2. Traer actividad de esos IDs (máximo 10 a la vez por limitación de Firestore en 'in')
+        // Si sigues a más de 10, habría que hacer varias consultas, pero para empezar:
+        const qActividad = query(
+            collection(db, "Actividades"),
+            where("userId", "in", listaSeguidosIds.slice(0, 10)), 
+            orderBy("fecha", "desc"),
+            limit(20)
+        );
+
+        const snapActividad = await getDocs(qActividad);
+        mainContainer.innerHTML = ""; // Limpiar cargando
+
+        if (snapActividad.empty) {
+            mainContainer.innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>Tus amigos aún no han hecho nada recientemente.</p>";
+            return;
+        }
+
+        snapActividad.forEach(docAct => {
+            const act = docAct.data();
+            renderizarActividad(act, mainContainer);
+        });
+
+    } catch (error) {
+        console.error("Error en el feed:", error);
+        mainContainer.innerHTML = "<p>Error al cargar el feed. Asegúrate de tener el índice de Firestore creado.</p>";
+    }
+}
+
+function renderizarActividad(act, contenedor) {
+    const div = document.createElement('div');
+    div.className = 'activity-card';
+    
+    // Formatear el mensaje según el tipo
+    let mensaje = "";
+    if (act.tipo === "valoracion") {
+        mensaje = `<span class="user-highlight">@${act.username}</span> ha valorado esta película con un <b style="color:#D4AF37;">${act.nota}/10</b>`;
+    } else {
+        mensaje = `<span class="user-highlight">@${act.username}</span> ha añadido esta película a su lista de deseos!`;
+    }
+
+    div.innerHTML = `
+        <div class="activity-header">
+            <p style="font-weight: bold; font-size: 1rem; text-decoration: underline; margin-top: 0">
+                ${new Date(act.fecha.seconds * 1000).toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}
+            </p>
+            ${mensaje}
+        </div>
+        <div class="activity-content" onclick="window.location.href='info-pelicula.html?id=${act.peliId}'">
+            <img src="${act.peliPoster}" alt="${act.peliNombre}">
+            <div class="activity-info">
+                <h4>${act.peliNombre}</h4>
+            </div>
+        </div>
+    `;
+    contenedor.appendChild(div);
 }

@@ -5,13 +5,14 @@ html, body {
 
 body { 
     /* El body empieza oculto por Firebase, pero cuando se muestra es Flex */
-    display: none; 
     flex-direction: column; 
     min-height: 100vh; 
     background-color: #1a1a1a;
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+
 
 header {
     background-color: #2a2a2a;
@@ -180,6 +181,14 @@ footer {
     width: 50%;
 }
 
+.perfil-stats-profile {
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin: auto;
+}
+
 .stat-value {
     font-size: 2.5rem;
     font-weight: bold;
@@ -322,7 +331,17 @@ footer {
 #search-input {
     flex: 1;
     padding: 12px;
-    border-radius: 15px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background: #222;
+    color: white;
+    outline: none;
+}
+
+#search-user-input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 5px;
     border: 1px solid #444;
     background: #222;
     color: white;
@@ -333,19 +352,41 @@ footer {
     border-color: #D4AF37;
 }
 
+#search-user-input:focus {
+    border-color: #D4AF37;
+}
+
+#search-profile-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 20px;
+}
+
 .busca {
-    color: #1a1a1a;
-    -webkit-text-stroke: 0.5px #1a1a1a;
+    color: white;
+    -webkit-text-stroke: 0.75px white;
 }
 
 #search-btn {
     background: #D4AF37;
     border: none;
     padding: 10px 20px;
-    border-radius: 15px;
+    border-radius: 5px;
     cursor: pointer;
-    color: #1a1a1a;
+    color: white;
     width: fit-content;
+}
+
+#search-user-btn {
+    background: #D4AF37;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    width: fit-content;
+    font-weight: bold;
 }
 
 .title {
@@ -503,6 +544,241 @@ footer {
 
 .delete-pts {
     width: 30%;
+}
+
+.welcome-container {
+    text-align: center;
+    padding: 0px 10px;
+    color: #eee;
+}
+
+.suggested-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+.mini-user-card {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.mini-user-card span {
+    font-weight: bold;
+    color: #D4AF37;
+}
+
+.mini-user-card button {
+    background: transparent;
+    border: 1px solid #D4AF37;
+    color: #D4AF37;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.profile-header {
+    text-align: center;
+    padding: 30px;
+    background: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.btn-follow {
+    background: transparent;
+    border: 1px solid #D4AF37;
+    color: #D4AF37;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.btn-follow:hover {
+    background-color: #D4AF37;
+    color: #1a1a1a;
+}
+
+.profile-avatar i {
+    font-size: 5rem;
+    color: #D4AF37;
+    margin-bottom: 10px;
+    margin-top: 15px;
+}
+
+.mini-movie-card {
+    width: 150px;
+    font-size: 0.8rem;
+    display: flex;
+}
+
+.mini-movie-card img {
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.user-score {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #D4AF37;
+    color: black;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    border: 2px solid #1a1a1a;
+}
+
+#public-profile-container {
+    padding-bottom: 120px;
+}
+
+.profile-avatar {
+    margin-top: 10px;
+    margin-bottom: -10px;
+}
+
+#view-username {
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-style: italic;
+    color: #D4AF37;
+}
+
+#view-stats {
+    color: #bbb;
+    width: 100%;
+    margin-top: -20px;
+    margin-bottom: 25px;
+}
+
+#user-time {
+    color: #bbb;
+    width: 100%;
+    margin-top: -10px;
+    margin-bottom: 25px;
+}
+
+.profile-header {
+    width: 100%;
+    text-align: center;
+    padding: 0px;
+}
+
+#user-data {
+    color: #D4AF37;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+#btn-see-profile {
+    margin-top: 10px;
+    padding: 10px 15px;
+    font-weight: bold;
+    transition: 0.5s;
+}
+
+#btn-see-profile:hover {
+    background-color: #D4AF37;
+    color: #1a1a1a;
+}
+
+.activity-card {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #333;
+}
+
+.user-highlight {
+    color: #D4AF37;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.activity-header {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: #eee;
+}
+
+.activity-content {
+    display: flex;
+    gap: 15px;
+    background: #252525;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.activity-content img {
+    width: 100px;
+    border-radius: 4px;
+}
+
+.activity-info h4 {
+    margin: 0;
+    color: #fff;
+}
+
+.activity-info p {
+    margin: 5px 0 0;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* Pantalla completa de carga */
+#loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #121212; /* Color de fondo de tu app */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Por encima de todo */
+    transition: opacity 0.5s ease;
+}
+
+/* La ruleta (spinner) */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #333;
+    border-top: 5px solid #D4AF37; /* El dorado de tu marca */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loader-overlay p {
+    color: #D4AF37;
+    font-family: sans-serif;
+    letter-spacing: 1px;
 }
 
 @media (max-width: 480px) { 
@@ -727,6 +1003,28 @@ footer {
     .swal2-icon {
         margin-bottom: 10px !important;
         transform: scale(0.9);
+    }
+
+    .btn-follow {
+        background: #D4AF37;
+        border: 1px solid #D4AF37;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: bold;
+        font-size: smaller;
+        width: 100%;
+    }
+
+    .btn-follow:hover {
+        color: white;
+    }
+
+    #btn-see-profile {
+        background-color: #D4AF37;
+        color: white;
     }
 
 }

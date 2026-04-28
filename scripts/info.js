@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove, deleteField, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const API_KEY = '42cd365743b38b7fec6c2366d90c6c0a';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
@@ -131,6 +131,8 @@ document.getElementById('save-rating-btn').onclick = async () => {
             listaDeseos: arrayRemove(movieId)
         });
 
+        await registrarActividad("valoracion", { nota: puntuacion });
+
         yaPuntuada = true;
         
         // ACTUALIZACIÓN AUTOMÁTICA DE LA INTERFAZ
@@ -215,6 +217,7 @@ document.getElementById('add-watchlist-btn').onclick = async () => {
             btn.classList.remove('btn-remove');
         } else {
             await updateDoc(userRef, { listaDeseos: arrayUnion(movieId) });
+            await registrarActividad("deseo");
             isEnListaDeseos = true;
             btn.innerText = "Eliminar de la lista de deseos";
             btn.classList.add('btn-remove');
@@ -223,3 +226,30 @@ document.getElementById('add-watchlist-btn').onclick = async () => {
         console.error("Error en Watchlist:", error);
     }
 };
+
+async function registrarActividad(tipo, detalles = {}) {
+    if (!userId) return;
+    
+    try {
+        // Necesitamos el username del usuario actual
+        const userSnap = await getDoc(doc(db, 'Usuarios', userId));
+        const username = userSnap.exists() ? userSnap.data().username : 'Cinéfilo';
+        
+        // Obtenemos los datos básicos de la película que ya están en pantalla
+        const peliNombre = document.querySelector('.movie-title').innerText;
+        const peliPoster = document.querySelector('.detail-poster').src;
+
+        await addDoc(collection(db, "Actividades"), {
+            userId: userId,
+            username: username,
+            tipo: tipo, // "valoracion" o "deseo"
+            peliId: movieId,
+            peliNombre: peliNombre,
+            peliPoster: peliPoster,
+            nota: detalles.nota || null,
+            fecha: new Date()
+        });
+    } catch (e) {
+        console.error("Error al registrar actividad:", e);
+    }
+}
