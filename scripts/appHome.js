@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const API_KEY = '42cd365743b38b7fec6c2366d90c6c0a';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
@@ -306,4 +307,119 @@ function renderizarActividad(act, contenedor) {
         </div>
     `;
     contenedor.appendChild(div);
+}
+
+const ProfileAlert = Swal.mixin({
+    background: '#1a1a1a',
+    color: '#ffffff',
+    confirmButtonColor: '#D4AF37',
+    cancelButtonColor: '#444'
+});
+
+const editBtn = document.getElementById('edit-profile-btn');
+
+if (editBtn) {
+    editBtn.onclick = async () => {
+        const user = auth.currentUser;
+        const userRef = doc(db, "Usuarios", user.uid);
+        const docSnap = await getDoc(userRef);
+        const userData = docSnap.data();
+
+        // 1. LANZAR EL MODAL
+        const { value: formValues } = await ProfileAlert.fire({
+            title: 'Editar Perfil',
+            html: `
+                <div class="tabs-container" style="display: flex; gap: 5px; margin-bottom: 20px;">
+                    <button type="button" id="tab-data" class="swal-tab-btn active">Datos</button>
+                    <button type="button" id="tab-pass" class="swal-tab-btn">Seguridad</button>
+                </div>
+                <div id="content-data" class="tab-content" style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                    <label class="swal2-label">Nombre de usuario</label>
+                    <input id="swal-username" class="swal2-input" value="${userData.username}">
+                    <label class="swal2-label">Nombre</label>
+                    <input id="swal-nombre" class="swal2-input" value="${userData.nombre}">
+                    <label class="swal2-label">Apellido(s)</label>
+                    <input id="swal-apellido" class="swal2-input" value="${userData.apellido}">
+                </div>
+                <div id="content-pass" class="tab-content" style="display: none; flex-direction: column; gap: 10px; text-align: left;">
+                    <label class="swal2-label">Contraseña actual</label>
+                    <input id="swal-curr-pass" type="password" class="swal2-input" placeholder="Tu clave actual">
+                    <label class="swal2-label">Nueva contraseña (opcional)</label>
+                    <input id="swal-new-pass" type="password" class="swal2-input" placeholder="Mínimo 6 caracteres">
+                </div>
+            `,
+            didOpen: () => {
+                const btnData = document.getElementById('tab-data');
+                const btnPass = document.getElementById('tab-pass');
+                const contentData = document.getElementById('content-data');
+                const contentPass = document.getElementById('content-pass');
+                btnData.onclick = () => { btnData.classList.add('active'); btnPass.classList.remove('active'); contentData.style.display = 'flex'; contentPass.style.display = 'none'; };
+                btnPass.onclick = () => { btnPass.classList.add('active'); btnData.classList.remove('active'); contentPass.style.display = 'flex'; contentData.style.display = 'none'; };
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Guardar',
+            preConfirm: () => {
+                const currPass = document.getElementById('swal-curr-pass').value;
+                if (!currPass) {
+                    Swal.showValidationMessage('Se requiere la contraseña actual');
+                    return false;
+                }
+                return {
+                    username: document.getElementById('swal-username').value.trim(),
+                    nombre: document.getElementById('swal-nombre').value.trim(),
+                    apellido: document.getElementById('swal-apellido').value.trim(),
+                    currPass: currPass,
+                    newPass: document.getElementById('swal-new-pass').value
+                }
+            }
+        });
+
+        // 2. PROCESAR LOS DATOS EN FIREBASE (Si el usuario pulsó Guardar)
+        if (formValues) {
+            try {
+                // Mostrar loading mientras trabaja Firebase
+                ProfileAlert.fire({ title: 'Guardando...', didOpen: () => { Swal.showLoading(); } });
+
+                // A. Re-autenticar
+                const credential = EmailAuthProvider.credential(user.email, formValues.currPass);
+                await reauthenticateWithCredential(user, credential);
+
+                // B. Actualizar contraseña si puso una nueva
+                if (formValues.newPass.trim() !== "") {
+                    if (formValues.newPass.length < 6) throw new Error("La nueva clave debe tener 6+ caracteres.");
+                    await updatePassword(user, formValues.newPass);
+                }
+
+                // C. Actualizar Firestore
+                await updateDoc(userRef, {
+                    username: formValues.username,
+                    nombre: formValues.nombre,
+                    apellido: formValues.apellido
+                });
+
+                // Éxito
+                await ProfileAlert.fire({
+                    icon: 'success',
+                    title: '¡Actualizado!',
+                    text: 'Los cambios se han guardado en tu perfil.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                location.reload(); // Recargamos para que el header y todo el perfil se actualice
+
+            } catch (error) {
+                console.error("Error al guardar:", error);
+                let mensajeError = "No se pudo actualizar el perfil.";
+                
+                if (error.code === 'auth/wrong-password') {
+                    mensajeError = "La contraseña actual no es correcta.";
+                } else if (error.message) {
+                    mensajeError = error.message;
+                }
+
+                ProfileAlert.fire('Error', mensajeError, 'error');
+            }
+        }
+    };
 }
