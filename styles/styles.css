@@ -1,3 +1,12 @@
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    font-size: 16px !important;
+}
+
 body {
     background-color: #1a1a1a; /* Un gris casi negro más moderno */
     color: white;
