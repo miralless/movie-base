@@ -15,10 +15,38 @@ const firebaseConfig = {
     messagingSenderId: "568203402282",
     appId: "1:568203402282:web:6387c01d9095bdb806f753"
 };
+import { writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+async function limpiarActividadesAntiguas() {
+    try {
+        const limiteDias = 30; // Tiempo de vida de la actividad
+        const fechaLimite = new Date();
+        fechaLimite.setDate(fechaLimite.getDate() - limiteDias);
+
+        const actividadesRef = collection(db, "Actividades");
+        
+        // Buscamos documentos cuya fecha sea menor a la fecha límite
+        const q = query(actividadesRef, where("fecha", "<", fechaLimite));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) return;
+
+        // Usamos un "Batch" para borrar muchos documentos de golpe de forma eficiente
+        const batch = writeBatch(db);
+        snapshot.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        console.log(`Se han limpiado ${snapshot.size} actividades antiguas.`);
+    } catch (error) {
+        console.error("Error limpiando actividades:", error);
+    }
+}
 
 // Si no hay sesión, mandamos al usuario al login de inmediato
 onAuthStateChanged(auth, async (user) => {
@@ -30,6 +58,7 @@ onAuthStateChanged(auth, async (user) => {
         if (window.location.pathname.includes('home.html')) {
             cargarFeed(user.uid);
         }
+        limpiarActividadesAntiguas();
         try {
             const docRef = doc(db, "Usuarios", user.uid);
             const docSnap = await getDoc(docRef);
@@ -235,19 +264,20 @@ async function cargarFeed(miUid) {
         const qSeguidos = query(collection(db, "Relaciones"), where("followerId", "==", miUid));
         const snapSeguidos = await getDocs(qSeguidos);
         
+        // CASO A: El usuario no sigue a absolutamente nadie
         if (snapSeguidos.empty) {
             mainContainer.innerHTML = `
                 <div style="text-align:center; padding:50px; color:#888;">
                     <i class="fa-solid fa-user-plus" style="font-size:3rem; margin-bottom:15px;"></i>
-                    <p>Aún no sigues a nadie. ¡Explora para ver actividad!</p>
+                    <p>Aún no sigues a nadie. ¡Explora y sigue a personas para ver su actividad!</p>
                 </div>`;
             return;
         }
 
+        // Si llegamos aquí, es que SÍ sigue a alguien
         const listaSeguidosIds = snapSeguidos.docs.map(doc => doc.data().followingId);
 
-        // 2. Traer actividad de esos IDs (máximo 10 a la vez por limitación de Firestore en 'in')
-        // Si sigues a más de 10, habría que hacer varias consultas, pero para empezar:
+        // 2. Traer actividad de esos IDs
         const qActividad = query(
             collection(db, "Actividades"),
             where("userId", "in", listaSeguidosIds.slice(0, 10)), 
@@ -256,13 +286,19 @@ async function cargarFeed(miUid) {
         );
 
         const snapActividad = await getDocs(qActividad);
-        mainContainer.innerHTML = ""; // Limpiar cargando
+        mainContainer.innerHTML = ""; 
 
+        // CASO B: Sigue a gente, pero no hay actividad en la base de datos
         if (snapActividad.empty) {
-            mainContainer.innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>Tus amigos aún no han hecho nada recientemente.</p>";
+            mainContainer.innerHTML = `
+                <div style="text-align:center; padding:50px; color:#888;">
+                    <i class="fa-solid fa-clock-rotate-left" style="font-size:3rem; margin-bottom:15px;"></i>
+                    <p>No hay actividad reciente.</p>
+                </div>`;
             return;
         }
 
+        // CASO C: Hay actividad, la renderizamos
         snapActividad.forEach(docAct => {
             const act = docAct.data();
             renderizarActividad(act, mainContainer);
@@ -270,7 +306,7 @@ async function cargarFeed(miUid) {
 
     } catch (error) {
         console.error("Error en el feed:", error);
-        mainContainer.innerHTML = "<p>Error al cargar el feed. Asegúrate de tener el índice de Firestore creado.</p>";
+        mainContainer.innerHTML = "<p style='text-align:center; padding:20px;'>Error al cargar el feed.</p>";
     }
 }
 
