@@ -90,7 +90,7 @@ async function realizarBusqueda() {
         document.querySelectorAll('.view-profile-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const uid = e.target.getAttribute('data-id');
-                window.location.href = `perfil.html?uid=${uid}`;
+                window.location.href = `profile.html?uid=${uid}`;
             };
         });
 

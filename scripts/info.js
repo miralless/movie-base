@@ -66,7 +66,7 @@ async function cargarDetalles() {
                      class="provider-logo">
             `).join('');
         } else {
-            providersHTML = "<p style='color: #888; font-size: 0.9rem;'>No disponible en suscripción actualmente en España.</p>";
+            providersHTML = "<p style='color: #888; font-size: 0.9rem; width: 100%;'>No disponible en España.</p>";
         }
 
         document.getElementById('movie-details').innerHTML = `

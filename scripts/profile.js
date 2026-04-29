@@ -94,8 +94,24 @@ async function cargarPerfilPublico() {
             }
         }
 
+        ocultarLoader();
+
     } catch (error) {
         console.error("ERROR CRÍTICO:", error);
+    }
+}
+
+function ocultarLoader() {
+    const loader = document.getElementById('loader-overlay');
+    // Asegúrate de que el contenedor del perfil sea visible
+    const mainContainer = document.getElementById('public-profile-container');
+    if (mainContainer) mainContainer.style.display = 'block';
+
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500);
     }
 }
 
