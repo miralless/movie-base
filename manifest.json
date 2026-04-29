@@ -1,0 +1,20 @@
+{
+  "short_name": "MovieBase",
+  "name": "MovieBase - Tu Red de Cine",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/home.html",
+  "background_color": "#121212",
+  "display": "standalone",
+  "theme_color": "#D4AF37"
+}

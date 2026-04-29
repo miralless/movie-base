@@ -2,6 +2,110 @@ import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebase
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+async function mostrarListaRelaciones(tipo) {
+    const miUid = auth.currentUser.uid;
+    const esSeguidores = tipo === 'seguidores';
+    
+    // 1. Mostrar cargando
+    ProfileAlert.fire({ title: 'Cargando...', didOpen: () => { Swal.showLoading(); } });
+
+    try {
+        // 2. Consultar relaciones
+        // Si busco seguidores: busco donde yo soy el followingId
+        // Si busco seguidos: busco donde yo soy el followerId
+        const campoFiltro = esSeguidores ? "followingId" : "followerId";
+        const q = query(collection(db, "Relaciones"), where(campoFiltro, "==", miUid));
+        const snapRelaciones = await getDocs(q);
+
+        if (snapRelaciones.empty) {
+            return ProfileAlert.fire({
+                title: esSeguidores ? 'Seguidores' : 'Siguiendo',
+                text: esSeguidores ? 'Aún no tienes seguidores.' : 'No sigues a nadie todavía.',
+                icon: 'info'
+            });
+        }
+
+        // 3. Obtener los perfiles de esos usuarios
+        let htmlLista = `<div style="max-height: 300px; overflow-y: auto; text-align: left;">`;
+        
+        for (const docRel of snapRelaciones.docs) {
+            const relData = docRel.data();
+            const idUsuario = esSeguidores ? relData.followerId : relData.followingId;
+            
+            const userSnap = await getDoc(doc(db, "Usuarios", idUsuario));
+            if (userSnap.exists()) {
+                const u = userSnap.data();
+                htmlLista += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 1px; border-bottom: 1px solid #333;">
+                        <span style="font-weight: bold; color: #D4AF37; font-style: italic;">@${u.username}</span>
+                        <button class="btn-action-follow" data-id="${idUsuario}" data-relid="${docRel.id}" 
+                            style="padding: 7px 5px; font-size: 0.8rem; cursor: pointer; background: #D4AF37; font-weight: bold; color: white; border-radius: 5px;">
+                            ${esSeguidores ? 'Seguir' : 'Dejar de seguir'}
+                        </button>
+                    </div>`;
+            }
+        }
+        htmlLista += `</div>`;
+
+        // 4. Mostrar el Modal con la lista
+        ProfileAlert.fire({
+            title: esSeguidores ? 'Tus Seguidores' : 'Personas que sigues',
+            html: htmlLista,
+            showConfirmButton: false,
+            didOpen: () => {
+                // Configurar eventos de los botones dentro de la lista
+                const botones = document.querySelectorAll('.btn-action-follow');
+                botones.forEach(btn => {
+                    btn.onclick = async () => {
+                        const targetId = btn.getAttribute('data-id');
+                        const relDocId = btn.getAttribute('data-relid');
+
+                        if (!esSeguidores) {
+                            // Lógica de UNFOLLOW
+                            await dejarDeSeguir(targetId, relDocId);
+                            mostrarListaRelaciones('seguidos'); // Recargar lista
+                        } else {
+                            // Lógica para ir al perfil (opcional)
+                            await ejecutarFollow(targetId); // Si es un seguidor, al hacer clic le damos follow automáticamente
+                            mostrarListaRelaciones('seguidores'); // Recargar lista para actualizar el botón a "Dejar de seguir"
+                        }
+                    };
+                });
+            }
+        });
+
+    } catch (error) {
+        console.error("Error al cargar lista:", error);
+        ProfileAlert.fire('Error', 'No se pudo obtener la lista.', 'error');
+    }
+}
+
+// Función auxiliar para dejar de seguir
+async function dejarDeSeguir(targetId, relDocId) {
+    const miId = auth.currentUser.uid;
+    try {
+        await deleteDoc(doc(db, "Relaciones", relDocId));
+        await updateDoc(doc(db, "Usuarios", miId), { seguidos: increment(-1) });
+        await updateDoc(doc(db, "Usuarios", targetId), { seguidores: increment(-1) });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+const btnSeguidores = document.getElementById('display-seguidores');
+const btnSeguidos = document.getElementById('display-seguidos');
+
+if (btnSeguidores) {
+    btnSeguidores.style.cursor = "pointer";
+    btnSeguidores.onclick = () => mostrarListaRelaciones('seguidores');
+}
+
+if (btnSeguidos) {
+    btnSeguidos.style.cursor = "pointer";
+    btnSeguidos.onclick = () => mostrarListaRelaciones('seguidos');
+}
 
 const API_KEY = '42cd365743b38b7fec6c2366d90c6c0a';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
