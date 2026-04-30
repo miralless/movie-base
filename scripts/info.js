@@ -84,7 +84,7 @@ async function cargarDetalles() {
                     <p><strong>Género:</strong> ${peli.genres.map(g => g.name).join(', ')}</p>
                     
                     <div class="providers-section">
-                        <p style="width: 60%; border: solid 0px transparent"><strong>Dónde ver:</strong></p>
+                        <p style="min-width: fit-content; border: solid 0px transparent"><strong>Dónde ver:</strong></p>
                         <div class="providers-container">
                             ${providersHTML}
                         </div>

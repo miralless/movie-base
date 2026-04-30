@@ -795,8 +795,9 @@ footer {
 .providers-section {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 15px;
     padding: 0px;
+    align-items: center;
 }
 
 .providers-container {
@@ -805,7 +806,7 @@ footer {
     flex-wrap: wrap;
     margin-top: 0px;
     align-items: center;
-    width: 100%;
+    width: fit-content;
 }
 
 .provider-logo {
