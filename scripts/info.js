@@ -19,8 +19,9 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const urlParams = new URLSearchParams(window.location.search);
-const movieId = urlParams.get('id');
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
+const type = params.get('type') || 'movie'; // Por defecto movie
 
 let userId = null;
 let isEnListaDeseos = false;
@@ -41,22 +42,20 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 async function cargarDetalles() {
-    if (!movieId) return;
+    if (!id) return; // Corregido: Ahora sale si NO hay ID
     try {
-        // 1. Obtener detalles básicos
-        const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=es-ES`);
+        // 1. Obtener detalles básicos - Corregido: Usar API_KEY y variable id
+        const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=es-ES`);
         const peli = await res.json();
         
-        // 2. Obtener proveedores de streaming
-        const resProviders = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${API_KEY}`);
+        // 2. Obtener proveedores de streaming - Corregido: Usar variable id
+        const resProviders = await fetch(`https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${API_KEY}`);
         const providersData = await resProviders.json();
         
-        // Buscamos los datos de España (ES). Si prefieres otro país, cambia 'ES'.
         const spainProviders = providersData.results?.ES?.flatrate || []; 
 
-        const fechaFormateada = peli.release_date ? peli.release_date.split('-').reverse().join('/') : "N/A";
+        const fechaFormateada = peli.release_date ? peli.release_date.split('-').reverse().join('/') : peli.first_air_date ? peli.first_air_date.split('-').reverse().join('/') : "-";
 
-        // Generar el HTML de los logos de plataformas
         let providersHTML = "";
         if (spainProviders.length > 0) {
             providersHTML = spainProviders.map(p => `
@@ -66,23 +65,26 @@ async function cargarDetalles() {
                      class="provider-logo">
             `).join('');
         } else {
-            providersHTML = "<p style='color: #888; font-size: 0.9rem; width: 100%;'>No disponible en España.</p>";
+            providersHTML = "<p style='color: #888; font-size: 0.9rem; width: 100%;'>No disponible en streaming en España.</p>";
         }
+
+        // Importante: Usar peli.title (para películas) o peli.name (para series)
+        const tituloFinal = peli.title || peli.name;
 
         document.getElementById('movie-details').innerHTML = `
             <div class="movie-header">
                 <img src="${IMG_URL + peli.poster_path}" class="detail-poster">
                 <div class="text-info">
-                    <h1 class="movie-title">${peli.title}</h1>
+                    <h1 class="movie-title">${tituloFinal}</h1>
                     <p class="tagline">${peli.tagline || ''}</p>
                     <p class="overview">${peli.overview}</p>
-                    <p><strong>Duración:</strong> ${peli.runtime || 'N/A'} min</p>
+                    <p><strong>Duración:</strong> ${peli.runtime ? peli.runtime + " min" : peli.number_of_episodes + " episodios"}</p>
                     <p><strong>Fecha de estreno:</strong> ${fechaFormateada}</p>
                     <p><strong>Puntuación:</strong> ${peli.vote_average.toFixed(1)} / 10</p>
                     <p><strong>Género:</strong> ${peli.genres.map(g => g.name).join(', ')}</p>
                     
                     <div class="providers-section">
-                        <p><strong>Disponible en:</strong></p>
+                        <p style="width: 50%; border: solid 0px transparent"><strong>Dónde ver:</strong></p>
                         <div class="providers-container">
                             ${providersHTML}
                         </div>
@@ -96,7 +98,7 @@ async function cargarDetalles() {
 }
 
 async function verificarEstadoUsuario() {
-    if (!userId || !movieId) return;
+    if (!userId || id) return;
     try {
         const userRef = doc(db, 'Usuarios', userId);
         const userSnap = await getDoc(userRef);

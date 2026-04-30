@@ -2,15 +2,36 @@ const API_KEY = '42cd365743b38b7fec6c2366d90c6c0a';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
 
-async function obtenerPeliculasRandom() {
-    const randomPage = Math.floor(Math.random() * 500) + 1;
+async function obtenerContenidoRandom() {
+    // Generamos páginas aleatorias diferentes para películas y series
+    const moviePage = Math.floor(Math.random() * 200) + 1;
+    const tvPage = Math.floor(Math.random() * 200) + 1;
+
     try {
-        const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&language=es-ES&page=${randomPage}`);
-        const data = await res.json();
-        // Usamos el ID correcto: 'random-movies'
-        renderizarPeliculas(data.results.slice(0, 18), 'random-movies'); 
+        // 1. Lanzamos ambas peticiones al mismo tiempo
+        const [resMovies, resTV] = await Promise.all([
+            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&language=es-ES&page=${moviePage}`),
+            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&language=es-ES&page=${tvPage}`)
+        ]);
+
+        const dataMovies = await resMovies.json();
+        const dataTV = await resTV.json();
+
+        // 2. Asignamos manualmente el media_type porque 'discover' no lo incluye
+        const movies = dataMovies.results.map(item => ({ ...item, media_type: 'movie' }));
+        const series = dataTV.results.map(item => ({ ...item, media_type: 'tv' }));
+
+        // 3. Mezclamos ambas listas
+        let listaMezclada = [...movies, ...series];
+
+        // 4. Algoritmo para desordenar la lista (Shuffle)
+        listaMezclada.sort(() => Math.random() - 0.5);
+
+        // 5. Renderizamos los primeros 18 resultados ya mezclados
+        renderizarPeliculas(listaMezclada.slice(0, 18), 'random-movies'); 
+        
     } catch (error) {
-        console.error("Error en Discovery:", error);
+        console.error("Error obteniendo contenido aleatorio:", error);
     }
 }
 
@@ -63,23 +84,27 @@ function renderizarPeliculas(lista, contenedorId, append = false) {
     if (!append) contenedor.innerHTML = "";
 
     lista.forEach(item => {
-        if (!item.poster_path) return;
+        // En búsqueda multi, a veces hay personas (person). Las saltamos porque no tienen poster.
+        if (!item.poster_path || item.media_type === 'person') return;
 
         const card = document.createElement('div');
         card.classList.add('movie-card');
-        
-        // --- CAMBIO AQUÍ: Añadimos el evento de clic ---
         card.style.cursor = "pointer";
+        
+        // --- CORRECCIÓN AQUÍ ---
         card.onclick = () => {
-            // Redirigimos a la página de info pasando el ID
-            window.location.href = `info-pelicula.html?id=${item.id}`;
+            // Detectamos el tipo de contenido. Si no viene media_type (como en las random), asumimos 'movie'
+            const tipo = item.media_type || 'movie';
+            
+            // Redirigimos pasando el ID y el TIPO para que info-pelicula sepa qué buscar
+            window.location.href = `info-pelicula.html?id=${item.id}&type=${tipo}`;
         };
 
         card.innerHTML = `
             <img src="${IMG_URL + item.poster_path}" alt="${item.title || item.name}">
             <div class="movie-info">
                 <h4>${item.title || item.name}</h4>
-                <span class="rating">⭐ ${item.vote_average.toFixed(1)}</span>
+                <span class="rating">⭐ ${item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}</span>
             </div>
         `;
         contenedor.appendChild(card);
@@ -105,4 +130,4 @@ document.getElementById('search-input').addEventListener('keypress', (e) => {
 });
 
 // Al cargar la página, solo pedimos las random
-document.addEventListener('DOMContentLoaded', obtenerPeliculasRandom);
+document.addEventListener('DOMContentLoaded', obtenerContenidoRandom);

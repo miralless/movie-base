@@ -300,3 +300,113 @@ function actualizarContadorVisual(id, cambio) {
         el.innerText = valorActual + cambio;
     }
 }
+
+const ProfileAlert = Swal.mixin({
+    background: '#1a1a1a',
+    color: '#ffffff',
+    confirmButtonColor: '#D4AF37',
+    cancelButtonColor: '#444'
+});
+
+const btnSeguidores = document.getElementById('display-seguidores');
+const btnSeguidos = document.getElementById('display-seguidos');
+
+if (btnSeguidores) {
+    btnSeguidores.style.cursor = "pointer";
+    btnSeguidores.onclick = () => mostrarListaRelaciones('seguidores');
+}
+
+if (btnSeguidos) {
+    btnSeguidos.style.cursor = "pointer";
+    btnSeguidos.onclick = () => mostrarListaRelaciones('seguidos');
+}
+
+async function mostrarListaRelaciones(tipo) {
+    const miUid = auth.currentUser ? auth.currentUser.uid : null; 
+    const esSeguidores = tipo === 'seguidores';
+    
+    ProfileAlert.fire({ title: 'Cargando...', didOpen: () => { Swal.showLoading(); } });
+
+    try {
+        const campoFiltro = esSeguidores ? "followingId" : "followerId";
+        const q = query(collection(db, "Relaciones"), where(campoFiltro, "==", targetUid));
+        const snapRelaciones = await getDocs(q);
+
+        if (snapRelaciones.empty) {
+            return ProfileAlert.fire({
+                title: esSeguidores ? 'Seguidores' : 'Personas que sigue',
+                text: 'No hay nadie todavía.',
+                icon: 'info'
+            });
+        }
+
+        let htmlLista = `<div style="max-height: 300px; overflow-y: auto; text-align: left;">`;
+        
+        for (const docRel of snapRelaciones.docs) {
+            const relData = docRel.data();
+            const idUsuario = esSeguidores ? relData.followerId : relData.followingId;
+            
+            const userSnap = await getDoc(doc(db, "Usuarios", idUsuario));
+            if (userSnap.exists()) {
+                const u = userSnap.data();
+                
+                // --- CAMBIO AQUÍ: Validar si el usuario de la lista soy yo ---
+                const esYo = idUsuario === miUid;
+
+                htmlLista += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 1px; border-bottom: 1px solid #333;">
+                        <span style="font-weight: bold; color: #D4AF37; font-style: italic;">@${u.username}</span>
+                        
+                        ${!esYo ? `
+                            <button class="btn-action-follow" data-id="${idUsuario}" data-relid="${docRel.id}" 
+                                style="padding: 7px 5px; font-size: 0.8rem; cursor: pointer; background: #D4AF37; font-weight: bold; color: white; border-radius: 5px; border:none;">
+                                ${esSeguidores ? 'Seguir' : 'Dejar de seguir'}
+                            </button>
+                        ` : `
+                            <span style="color: #888; font-size: 0.8rem; padding-right: 10px;"></span>
+                        `}
+                    </div>`;
+            }
+        }
+        htmlLista += `</div>`;
+
+        ProfileAlert.fire({
+            title: esSeguidores ? 'Seguidores' : 'Personas que sigue',
+            html: htmlLista,
+            showConfirmButton: false,
+            didOpen: () => {
+                const botones = document.querySelectorAll('.btn-action-follow');
+                botones.forEach(btn => {
+                    btn.onclick = async () => {
+                        const targetId = btn.getAttribute('data-id');
+                        const relDocId = btn.getAttribute('data-relid');
+
+                        if (!esSeguidores) {
+                            await dejarDeSeguir(targetId, relDocId);
+                            mostrarListaRelaciones('seguidos'); 
+                        } else {
+                            await ejecutarFollow(miUid, targetId); // Asegúrate de pasar miUid aquí
+                            mostrarListaRelaciones('seguidores'); 
+                        }
+                    };
+                });
+            }
+        });
+
+    } catch (error) {
+        console.error("Error al cargar lista:", error);
+        ProfileAlert.fire('Error', 'No se pudo obtener la lista.', 'error');
+    }
+}
+
+// Función auxiliar para dejar de seguir
+async function dejarDeSeguir(targetId, relDocId) {
+    const miId = auth.currentUser.uid;
+    try {
+        await deleteDoc(doc(db, "Relaciones", relDocId));
+        await updateDoc(doc(db, "Usuarios", miId), { seguidos: increment(-1) });
+        await updateDoc(doc(db, "Usuarios", targetId), { seguidores: increment(-1) });
+    } catch (e) {
+        console.error(e);
+    }
+}

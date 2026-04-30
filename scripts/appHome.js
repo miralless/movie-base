@@ -82,6 +82,14 @@ async function mostrarListaRelaciones(tipo) {
     }
 }
 
+function actualizarContadorVisual(id, cambio) {
+    const el = document.getElementById(id);
+    if (el) {
+        let valorActual = parseInt(el.innerText) || 0;
+        el.innerText = valorActual + cambio;
+    }
+}
+
 // Función auxiliar para dejar de seguir
 async function dejarDeSeguir(targetId, relDocId) {
     const miId = auth.currentUser.uid;
@@ -89,6 +97,7 @@ async function dejarDeSeguir(targetId, relDocId) {
         await deleteDoc(doc(db, "Relaciones", relDocId));
         await updateDoc(doc(db, "Usuarios", miId), { seguidos: increment(-1) });
         await updateDoc(doc(db, "Usuarios", targetId), { seguidores: increment(-1) });
+        actualizarContadorVisual('display-seguidos', -1);
     } catch (e) {
         console.error(e);
     }
@@ -273,6 +282,8 @@ async function ejecutarFollow(idDestino) {
         await updateDoc(suRef, {
             seguidores: increment(1)
         });
+
+        actualizarContadorVisual('display-seguidos', 1);
 
         console.log("¡Sincronización de follow completada!");
     } catch (error) {
