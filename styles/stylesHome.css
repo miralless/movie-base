@@ -892,7 +892,7 @@ footer {
 
 @media (max-width: 480px) {
     main {
-        padding: 1rem 1.5rem;
+        padding: 1rem 1rem;
     }
     
     .nav-item:hover {
