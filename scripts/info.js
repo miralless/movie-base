@@ -65,7 +65,7 @@ async function cargarDetalles() {
                      class="provider-logo">
             `).join('');
         } else {
-            providersHTML = "<p style='color: #888; font-size: 0.9rem; width: 100%;'>No disponible en streaming en España.</p>";
+            providersHTML = "<p style='color: #888; font-size: 0.9rem; width: 100%;'>No disponible en streaming.</p>";
         }
 
         // Importante: Usar peli.title (para películas) o peli.name (para series)
@@ -78,7 +78,7 @@ async function cargarDetalles() {
                     <h1 class="movie-title">${tituloFinal}</h1>
                     <p class="tagline">${peli.tagline || ''}</p>
                     <p class="overview">${peli.overview}</p>
-                    <p><strong>Duración:</strong> ${peli.runtime ? peli.runtime + " min" : peli.number_of_episodes + " episodios (" + peli.seasons.length + " temporadas)"}</p>
+                    <p><strong>Duración:</strong> ${peli.runtime ? peli.runtime + " min" : peli.number_of_episodes + " episodios (" + peli.seasons.length + " temp.)"}</p>
                     <p><strong>Fecha de estreno:</strong> ${fechaFormateada}</p>
                     <p><strong>Puntuación:</strong> ${peli.vote_average.toFixed(1)} / 10</p>
                     <p><strong>Género:</strong> ${peli.genres.map(g => g.name).join(', ')}</p>
