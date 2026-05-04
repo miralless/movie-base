@@ -291,34 +291,44 @@ async function ejecutarFollow(idDestino) {
     }
 }
 
-async function cargarListaDeseos(ids) {
+async function cargarListaDeseos(idsCombinados) {
     const contenedor = document.getElementById('wishlist-container');
     contenedor.innerHTML = ""; // Limpiar
 
-    // Recorremos cada ID del array de Firebase
-    for (const id of ids) {
+    for (const itemKey of idsCombinados) {
         try {
-            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=es-ES`);
-            const peli = await res.json();
+            // Separamos el tipo y el ID (ej: "movie_123" -> ["movie", "123"])
+            const [tipo, idReal] = itemKey.split('_');
+            
+            // Si por error hay un ID antiguo (solo número), por defecto buscamos movie
+            const fetchTipo = idReal ? tipo : 'movie';
+            const fetchId = idReal ? idReal : itemKey;
 
-            if (peli.poster_path) {
+            const res = await fetch(`https://api.themoviedb.org/3/${fetchTipo}/${fetchId}?api_key=${API_KEY}&language=es-ES`);
+            const data = await res.json();
+
+            if (data.poster_path) {
                 const card = document.createElement('div');
                 card.classList.add('movie-card-watchlist');
-                // Reutilizamos la lógica de clic para ir al detalle
                 card.style.cursor = "pointer";
-                card.onclick = () => window.location.href = `info-pelicula.html?id=${peli.id}`;
+                
+                // Redirigir pasando el ID y el TIPO correctos
+                card.onclick = () => window.location.href = `info-pelicula.html?id=${fetchId}&type=${fetchTipo}`;
+
+                // TMDB usa 'title' para películas y 'name' para series
+                const nombreMostrar = data.title || data.name;
 
                 card.innerHTML = `
-                    <img src="${IMG_URL + peli.poster_path}" alt="${peli.title}">
+                    <img src="${IMG_URL + data.poster_path}" alt="${nombreMostrar}">
                     <div class="movie-info">
-                        <h4>${peli.title}</h4>
-                        <span class="rating">⭐ ${peli.vote_average.toFixed(1)}</span>
+                        <h4>${nombreMostrar}</h4>
+                        <span class="rating">⭐ ${data.vote_average.toFixed(1)}</span>
                     </div>
                 `;
                 contenedor.appendChild(card);
             }
         } catch (error) {
-            console.error("Error al cargar peli de la wishlist:", error);
+            console.error("Error al cargar elemento de la wishlist:", error);
         }
     }
 }
@@ -326,14 +336,17 @@ async function cargarListaDeseos(ids) {
 async function organizarTierList(puntuaciones) {
     const entries = Object.entries(puntuaciones);
 
-    for (const [id, nota] of entries) {
+    for (const [itemKey, nota] of entries) {
         try {
-            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=es-ES`);
-            const peli = await res.json();
+            // Separar tipo e ID
+            const [tipo, idReal] = itemKey.split('_');
+            const fetchTipo = idReal ? tipo : 'movie';
+            const fetchId = idReal ? idReal : itemKey;
+
+            const res = await fetch(`https://api.themoviedb.org/3/${fetchTipo}/${fetchId}?api_key=${API_KEY}&language=es-ES`);
+            const data = await res.json();
 
             let tierId = "";
-            
-            // Nueva escala para 7 niveles
             if (nota >= 9.5) tierId = "tier-s";
             else if (nota >= 8.5) tierId = "tier-a";
             else if (nota >= 7.0) tierId = "tier-b";
@@ -345,18 +358,21 @@ async function organizarTierList(puntuaciones) {
             const contenedor = document.querySelector(`#${tierId} .tier-content`);
             if (!contenedor) continue;
 
+            const nombreMostrar = data.title || data.name;
+
             const img = document.createElement('img');
-            img.src = IMG_URL + peli.poster_path;
-            img.classList.add('movie-card');
-            img.classList.add('movie-tier');
+            img.src = IMG_URL + data.poster_path;
+            img.classList.add('movie-card', 'movie-tier');
             img.style.cursor = "pointer";
-            img.title = `${peli.title}: ${nota}`;
-            img.onclick = () => window.location.href = `info-pelicula.html?id=${peli.id}`;
+            img.title = `${nombreMostrar}: ${nota}`;
+            
+            // Navegación corregida con tipo
+            img.onclick = () => window.location.href = `info-pelicula.html?id=${fetchId}&type=${fetchTipo}`;
 
             contenedor.appendChild(img);
 
         } catch (error) {
-            console.error("Error cargando peli:", error);
+            console.error("Error cargando elemento en tierlist:", error);
         }
     }
 }

@@ -98,23 +98,28 @@ async function cargarDetalles() {
 }
 
 async function verificarEstadoUsuario() {
-    if (!userId || id) return;
+    if (!userId || !id) return; 
+    const itemKey = `${type}_${id}`; // Creamos la llave actual
+
     try {
         const userRef = doc(db, 'Usuarios', userId);
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
             const data = userSnap.data();
+            
+            // Verificar puntuación
             const puntuaciones = data.listaPuntuaciones || {};
-            const notaActual = puntuaciones[movieId];
+            const notaActual = puntuaciones[itemKey]; // Buscamos con la llave combinada
 
             if (notaActual !== undefined) {
                 yaPuntuada = true;
                 actualizarInterfazPuntuado(notaActual);
             }
 
+            // Verificar lista de deseos
             const listaDeseos = data.listaDeseos || [];
-            if (listaDeseos.map(String).includes(String(movieId))) {
+            if (listaDeseos.includes(itemKey)) { // Buscamos con la llave combinada
                 isEnListaDeseos = true;
                 const btnWatchlist = document.getElementById('add-watchlist-btn');
                 if (btnWatchlist) {
@@ -158,16 +163,15 @@ document.getElementById('save-rating-btn').onclick = async () => {
 
     try {
         const userRef = doc(db, 'Usuarios', userId);
+        const itemKey = `${type}_${id}`;
         await updateDoc(userRef, {
-            [`listaPuntuaciones.${movieId}`]: puntuacion,
-            listaDeseos: arrayRemove(movieId)
+            [`listaPuntuaciones.${itemKey}`]: puntuacion,
+            listaDeseos: arrayRemove(itemKey) // Importante quitarlo con la misma llave
         });
 
         await registrarActividad("valoracion", { nota: puntuacion });
 
         yaPuntuada = true;
-        
-        // ACTUALIZACIÓN AUTOMÁTICA DE LA INTERFAZ
         actualizarInterfazPuntuado(puntuacion);
         puntuacionInput.value = ""; 
 
@@ -190,11 +194,11 @@ document.getElementById('save-rating-btn').onclick = async () => {
 };
 
 document.getElementById('delete-rating-btn').onclick = async () => {
-    if (!userId || !movieId) return;
+    if (!userId || !id) return; // CORREGIDO
 
     const confirmacion = await MovieAlert.fire({
         title: '¿Eliminar puntuación?',
-        text: "Esta acción borrará tu valoración de esta película.",
+        text: "Esta acción borrará tu valoración.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí, borrar',
@@ -206,7 +210,7 @@ document.getElementById('delete-rating-btn').onclick = async () => {
     try {
         const userRef = doc(db, 'Usuarios', userId);
         await updateDoc(userRef, {
-            [`listaPuntuaciones.${movieId}`]: deleteField()
+             [`listaPuntuaciones.${id}`]: deleteField() // CORREGIDO
         });
 
         yaPuntuada = false;
@@ -224,7 +228,7 @@ document.getElementById('delete-rating-btn').onclick = async () => {
 };
 
 document.getElementById('add-watchlist-btn').onclick = async () => {
-    if (!userId) {
+    if (!userId || !id) { // CORREGIDO
         MovieAlert.fire({ title: 'Error', text: 'Inicia sesión primero', icon: 'error' });
         return;
     }
@@ -232,7 +236,7 @@ document.getElementById('add-watchlist-btn').onclick = async () => {
     if (yaPuntuada && !isEnListaDeseos) { 
         MovieAlert.fire({
             title: 'No se puede añadir',
-            text: 'Ya has valorado esta película, por lo que no puede estar en tu lista de deseos.',
+            text: 'Ya has valorado este contenido.',
             icon: 'info'
         });
         return;
@@ -240,13 +244,13 @@ document.getElementById('add-watchlist-btn').onclick = async () => {
 
     const userRef = doc(db, 'Usuarios', userId);
     const btn = document.getElementById('add-watchlist-btn');
+    const itemKey = `${type}_${id}`; // Ejemplo: "tv_12345"
 
     try {
         if (isEnListaDeseos) {
-            // MOSTRAR CONFIRMACIÓN ANTES DE ELIMINAR
             const confirmacion = await MovieAlert.fire({
                 title: '¿Quitar de la lista?',
-                text: "Esta película dejará de aparecer en tu lista de deseos.",
+                text: "Dejará de aparecer en tu lista de deseos.",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Sí, quitar',
@@ -254,38 +258,28 @@ document.getElementById('add-watchlist-btn').onclick = async () => {
             });
 
             if (confirmacion.isConfirmed) {
-                await updateDoc(userRef, { listaDeseos: arrayRemove(movieId) });
+                await updateDoc(userRef, { 
+                    listaDeseos: arrayRemove(itemKey) 
+                });
                 isEnListaDeseos = false;
                 btn.innerText = "Añadir a mi lista de deseos";
                 btn.classList.remove('btn-remove');
                 
-                MovieAlert.fire({
-                    title: 'Eliminada',
-                    text: 'Se ha quitado de tu lista de deseos.',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                MovieAlert.fire({ title: 'Eliminada', icon: 'success', timer: 1500, showConfirmButton: false });
             }
         } else {
-            // AÑADIR DIRECTAMENTE (Sin confirmación, suele ser mejor experiencia)
-            await updateDoc(userRef, { listaDeseos: arrayUnion(movieId) });
+            await updateDoc(userRef, { 
+                listaDeseos: arrayUnion(itemKey) 
+            });
             await registrarActividad("deseo");
             isEnListaDeseos = true;
             btn.innerText = "Eliminar de la lista de deseos";
             btn.classList.add('btn-remove');
 
-            MovieAlert.fire({
-                title: '¡Añadida!',
-                text: 'Se ha guardado en tu lista de deseos.',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
+            MovieAlert.fire({ title: '¡Añadida!', icon: 'success', timer: 1500, showConfirmButton: false });
         }
     } catch (error) {
         console.error("Error en Watchlist:", error);
-        MovieAlert.fire({ title: 'Error', text: 'No se pudo actualizar la lista.', icon: 'error' });
     }
 };
 
@@ -305,7 +299,7 @@ async function registrarActividad(tipo, detalles = {}) {
             userId: userId,
             username: username,
             tipo: tipo, // "valoracion" o "deseo"
-            peliId: movieId,
+            peliId: id,
             peliNombre: peliNombre,
             peliPoster: peliPoster,
             nota: detalles.nota || null,

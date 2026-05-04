@@ -117,12 +117,16 @@ function ocultarLoader() {
 
 // LÓGICA DE TIERS (Copiada de tu perfil)
 async function organizarTierList(puntuaciones) {
-    // Eliminamos la lógica de ocultar/mostrar filas para que siempre se vean
     const entries = Object.entries(puntuaciones);
     
-    for (const [id, nota] of entries) {
+    for (const [itemKey, nota] of entries) {
         try {
-            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=es-ES`);
+            // Separamos tipo e ID (ej: "movie_123" -> ["movie", "123"])
+            const [tipo, idReal] = itemKey.split('_');
+            const fetchTipo = idReal ? tipo : 'movie';
+            const fetchId = idReal ? idReal : itemKey;
+
+            const res = await fetch(`https://api.themoviedb.org/3/${fetchTipo}/${fetchId}?api_key=${API_KEY}&language=es-ES`);
             const peli = await res.json();
 
             let tierId = "";
@@ -143,8 +147,13 @@ async function organizarTierList(puntuaciones) {
                 img.src = IMG_URL + peli.poster_path;
                 img.classList.add('movie-card', 'movie-tier');
                 img.style.cursor = "pointer";
-                img.title = `${peli.title}: ${nota}`;
-                img.onclick = () => window.location.href = `info-pelicula.html?id=${peli.id}`;
+                
+                // TMDB usa 'title' para películas y 'name' para series
+                const nombreMostrar = peli.title || peli.name;
+                img.title = `${nombreMostrar}: ${nota}`;
+                
+                // Pasamos ID y Tipo a la página de info
+                img.onclick = () => window.location.href = `info-pelicula.html?id=${fetchId}&type=${fetchTipo}`;
                 contenedor.appendChild(img);
             }
         } catch (e) { 
@@ -154,31 +163,39 @@ async function organizarTierList(puntuaciones) {
 }
 
 // LÓGICA DE WISHLIST (Copiada de tu perfil)
-async function cargarListaDeseos(ids) {
+async function cargarListaDeseos(idsCombinados) {
     const contenedor = document.getElementById('watchlist-grid');
     contenedor.innerHTML = ""; 
 
-    for (const id of ids) {
+    for (const itemKey of idsCombinados) {
         try {
-            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=es-ES`);
+            const [tipo, idReal] = itemKey.split('_');
+            const fetchTipo = idReal ? tipo : 'movie';
+            const fetchId = idReal ? idReal : itemKey;
+
+            const res = await fetch(`https://api.themoviedb.org/3/${fetchTipo}/${fetchId}?api_key=${API_KEY}&language=es-ES`);
             const peli = await res.json();
 
             if (peli.poster_path) {
                 const card = document.createElement('div');
-                card.classList.add('movie-card-watchlist'); // Clase de tu perfil
+                card.classList.add('movie-card-watchlist'); 
                 card.style.cursor = "pointer";
-                card.onclick = () => window.location.href = `info-pelicula.html?id=${peli.id}`;
+                card.onclick = () => window.location.href = `info-pelicula.html?id=${fetchId}&type=${fetchTipo}`;
+
+                const nombreMostrar = peli.title || peli.name;
 
                 card.innerHTML = `
-                    <img src="${IMG_URL + peli.poster_path}" alt="${peli.title}">
+                    <img src="${IMG_URL + peli.poster_path}" alt="${nombreMostrar}">
                     <div class="movie-info">
-                        <h4>${peli.title}</h4>
+                        <h4>${nombreMostrar}</h4>
                         <span class="rating">⭐ ${peli.vote_average.toFixed(1)}</span>
                     </div>
                 `;
                 contenedor.appendChild(card);
             }
-        } catch (e) { console.error("Error wishlist:", e); }
+        } catch (e) { 
+            console.error("Error wishlist:", e); 
+        }
     }
 }
 
