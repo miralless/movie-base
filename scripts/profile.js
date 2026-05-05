@@ -131,12 +131,12 @@ async function organizarTierList(puntuaciones) {
 
             let tierId = "";
             const n = parseFloat(nota);
-            if (n >= 9.5) tierId = "tier-s";
-            else if (n >= 8.5) tierId = "tier-a";
+            if (n >= 9.0) tierId = "tier-s";
+            else if (n >= 8.0) tierId = "tier-a";
             else if (n >= 7.0) tierId = "tier-b";
-            else if (n >= 5.5) tierId = "tier-c";
-            else if (n >= 4.0) tierId = "tier-d";
-            else if (n >= 2.5) tierId = "tier-e";
+            else if (n >= 6.0) tierId = "tier-c";
+            else if (n >= 5.0) tierId = "tier-d";
+            else if (n >= 4.0) tierId = "tier-e";
             else tierId = "tier-f";
 
             const filaTier = document.getElementById(tierId);
