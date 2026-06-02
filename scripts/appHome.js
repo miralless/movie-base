@@ -349,10 +349,10 @@ async function organizarTierList(puntuaciones) {
             let tierId = "";
             if (nota >= 9.0) tierId = "tier-s";
             else if (nota >= 8.0) tierId = "tier-a";
-            else if (nota >= 7.0) tierId = "tier-b";
-            else if (nota >= 6.0) tierId = "tier-c";
-            else if (nota >= 5.0) tierId = "tier-d";
-            else if (nota >= 4.0) tierId = "tier-e";
+            else if (nota >= 7.5) tierId = "tier-b";
+            else if (nota >= 7.0) tierId = "tier-c";
+            else if (nota >= 6.0) tierId = "tier-d";
+            else if (nota >= 5.0) tierId = "tier-e";
             else tierId = "tier-f";
 
             const contenedor = document.querySelector(`#${tierId} .tier-content`);
