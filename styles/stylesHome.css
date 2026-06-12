@@ -12,6 +12,20 @@ html, body {
     margin: 0;
 }
 
+*, html, body {
+    scrollbar-width: none !important; /* Oculta en Firefox (forzado) */
+    -ms-overflow-style: none !important; /* Oculta en IE/Edge antiguo */
+}
+
+/* 2. Aplicado a los motores Webkit (Chrome, Safari, Edge moderno, Brave, etc.) */
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0px !important;  /* Elimina barra vertical */
+    height: 0px !important; /* Elimina barra horizontal */
+    background: transparent !important; /* Asegura fondo invisible */
+}
+
 body { 
     /* El body empieza oculto por Firebase, pero cuando se muestra es Flex */
     flex-direction: column; 

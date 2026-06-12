@@ -7,6 +7,20 @@ select {
     font-size: 16px !important;
 }
 
+*, html, body {
+    scrollbar-width: none !important; /* Oculta en Firefox (forzado) */
+    -ms-overflow-style: none !important; /* Oculta en IE/Edge antiguo */
+}
+
+/* 2. Aplicado a los motores Webkit (Chrome, Safari, Edge moderno, Brave, etc.) */
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0px !important;  /* Elimina barra vertical */
+    height: 0px !important; /* Elimina barra horizontal */
+    background: transparent !important; /* Asegura fondo invisible */
+}
+
 body {
     background-color: #1a1a1a; /* Un gris casi negro más moderno */
     color: white;
